@@ -1,0 +1,38 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'capitec-statement-service'
+    environment: 'production'
+
+scrape_configs:
+  # Application metrics
+  - job_name: 'spring-boot-app'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['app:8080']
+        labels:
+          application: 'capitec-statement-service'
+          service: 'api'
+
+  # MinIO metrics
+  - job_name: 'minio'
+    metrics_path: '/minio/v2/metrics/cluster'
+    static_configs:
+      - targets: ['minio:9000']
+        labels:
+          application: 'capitec-statement-service'
+          service: 'storage'
+
+  # PostgreSQL metrics (requires postgres_exporter)
+  # - job_name: 'postgres'
+  #   static_configs:
+  #     - targets: ['postgres-exporter:9187']
+  #       labels:
+  #         application: 'capitec-statement-service'
+  #         service: 'database'
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']

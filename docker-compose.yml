@@ -1,0 +1,81 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: statements-postgres
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: statements_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d statements_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: quay.io/minio/minio:RELEASE.2025-01-20T14-49-07Z
+    container_name: statements-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${AWS_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${AWS_SECRET_KEY}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - miniodata:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  create-bucket:
+    image: minio/mc:RELEASE.2025-01-07T22-46-56Z
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 ${AWS_ACCESS_KEY} ${AWS_SECRET_KEY} &&
+      mc mb -p local/${AWS_S3_BUCKET} || true &&
+      mc anonymous set none local/${AWS_S3_BUCKET} || true &&
+      echo 'Bucket ready';
+      "
+    restart: "no"
+
+  app:
+    build:
+      context: .
+    image: capitec-file-statement:latest
+    container_name: statements-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      create-bucket:
+        condition: service_completed_successfully
+    environment:
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET}
+      AWS_REGION: ${AWS_REGION}
+      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
+      AWS_SECRET_KEY: ${AWS_SECRET_KEY}
+      AWS_S3_ENDPOINT: ${AWS_S3_ENDPOINT}
+      AWS_S3_PATH_STYLE: ${AWS_S3_PATH_STYLE}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/statements_db
+      SERVER_PORT: ${SERVER_PORT}
+    ports:
+      - "${SERVER_PORT}:8080"
+
+volumes:
+  pgdata:
+  miniodata:
