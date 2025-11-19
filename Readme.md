@@ -19,7 +19,6 @@ A production-grade secure REST API for managing customer account statements with
 - [Building the Project](#building-the-project)
 - [Running the Project](#running-the-project)
 - [Testing the API](#testing-the-api)
-- [Project Structure](#project-structure)
 - [API Documentation](#api-documentation)
 - [Configuration](#configuration)
 - [Monitoring](#monitoring)
@@ -368,69 +367,7 @@ chmod +x test-api.sh
 ./test-api.sh
 ```
 
-##  Project Structure
-
-```
-capitec-file-statement/
-├── src/
-│   ├── main/
-│   │   ├── java/
-│   │   │   └── com/capitecfilestatement/
-│   │   │       ├── config/
-│   │   │       │   ├── AppConfig.java
-│   │   │       │   └── SecurityConfig.java
-│   │   │       ├── controller/
-│   │   │       │   ├── AuthController.java
-│   │   │       │   └── StatementController.java
-│   │   │       ├── dto/
-│   │   │       │   ├── AuthRequest.java
-│   │   │       │   ├── StatementUploadResponse.java
-│   │   │       │   └── DownloadLinkResponse.java
-│   │   │       ├── entity/
-│   │   │       │   ├── Customer.java
-│   │   │       │   ├── AccountStatement.java
-│   │   │       │   ├── DownloadToken.java
-│   │   │       │   └── AuditLog.java
-│   │   │       ├── exception/
-│   │   │       │   ├── GlobalExceptionHandler.java
-│   │   │       │   └── CustomExceptions.java
-│   │   │       ├── repository/
-│   │   │       │   ├── CustomerRepository.java
-│   │   │       │   ├── AccountStatementRepository.java
-│   │   │       │   ├── DownloadTokenRepository.java
-│   │   │       │   └── AuditLogRepository.java
-│   │   │       ├── security/
-│   │   │       │   ├── JwtTokenProvider.java
-│   │   │       │   ├── JwtAuthenticationFilter.java
-│   │   │       │   └── CustomUserDetailsService.java
-│   │   │       ├── service/
-│   │   │       │   └── StatementService.java
-│   │   │       ├── task/
-│   │   │       │   └── CleanupTask.java
-│   │   │       └── StatementServiceApplication.java
-│   │   └── resources/
-│   │       ├── db/migration/
-│   │       │   └── V1__create_initial_schema.sql
-│   │       ├── application.yml
-│   │       ├── application-dev.yml
-│   │       ├── application-test.yml
-│   │       └── application-prod.yml
-│   └── test/
-│       └── java/
-│           └── com/capitec/statements/
-│               └── StatementServiceIntegrationTest.java
-├── monitoring/
-│   └── prometheus.yml
-├── .gitignore
-├── .env.template
-├── docker-compose.yml
-├── Dockerfile
-├── pom.xml
-├── README.md
-└── test-api.sh
-```
-
-## 📚 API Documentation
+## API Documentation
 
 ### Authentication Endpoints
 
@@ -457,7 +394,7 @@ capitec-file-statement/
 | GET | `/actuator/metrics` | Application metrics |
 | GET | `/actuator/prometheus` | Prometheus metrics |
 
-## ⚙️ Configuration
+## Configuration
 
 ### Environment Variables
 
